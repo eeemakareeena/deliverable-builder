@@ -263,19 +263,14 @@ async function generate() {
   document.getElementById("btnText").textContent = "Generating...";
 
   try {
-    var mTxt = mData.map(function(m){ return "- "+m.label+": "+m.value; }).join("\n");
-    var prompt = "You are a senior B2B SaaS CSM writing a client one-pager for "+name+".\n\nAccount: "+name+"\nARR: "+(arr||"Not specified")+"\nMetrics:\n"+mTxt+"\n\nReturn ONLY valid JSON, no markdown:\n{\"headline\":\"bold statement max 12 words\",\"top\":{\"summary\":\"2 sentences on results\",\"highlights\":[\"highlight using metric 1\",\"highlight using metric 2\",\"positive observation\"]},\"middle\":{\"breakdown\":[\"driver behind metric 1\",\"driver behind metric 2\",\"account maturity context\",\"limiting factor\"]},\"bottom\":{\"recommendations\":[\"tactic for metric 1\",\"tactic for metric 2\",\"next quarter strategy\"]},\"quote\":\"enthusiastic client quote 1-2 sentences\"}";
-
     var resp = await fetch("/api/generate", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ prompt: prompt })
+      body: JSON.stringify({ accountName: name, arr: arr, metricsData: mData })
     });
     if (!resp.ok) { var e = await resp.json(); throw new Error(e.error||"Server error."); }
     var data = await resp.json();
-    var content = data.content;
-
-    await buildPptx(name, arr, mData, content);
+    await buildPptx(name, arr, mData, data.content);
     toast("One-pager ready — check your downloads.");
   } catch(e) {
     toast(e.message||"Something went wrong.", true);
@@ -311,14 +306,14 @@ async function buildPptx(name, arr, mData, c) {
   }
   s.addText(new Date().toLocaleDateString("en-GB",{month:"long",year:"numeric"}),{x:5.5,y:0.18,w:2.6,h:0.2,fontSize:7.2,color:MU,fontFace:"Arial",align:"right"});
   s.addShape(pptx.ShapeType.rect,{x:0.22,y:1.55,w:7.83,h:0.48,fill:{color:BD},line:{color:BM,width:0.5},rectRadius:0.06});
-  s.addText(c.headline,{x:0.34,y:1.58,w:7.59,h:0.42,fontSize:11.5,bold:true,color:BT,fontFace:"Arial",wrap:true,align:"center"});
+  s.addText(c.headline||"Performance Summary",{x:0.34,y:1.58,w:7.59,h:0.42,fontSize:11.5,bold:true,color:BT,fontFace:"Arial",wrap:true,align:"center"});
 
   function div(y){ s.addShape(pptx.ShapeType.line,{x:0.22,y:y,w:7.83,h:0,line:{color:BO,width:0.55}}); }
   div(2.13);
 
   s.addShape(pptx.ShapeType.rect,{x:0.22,y:2.2,w:1.5,h:0.2,fill:{color:OD},line:{color:"fbd5b5",width:0.4},rectRadius:0.04});
   s.addText("OVERVIEW",{x:0.23,y:2.21,w:1.48,h:0.18,fontSize:6,color:OT,fontFace:"Arial",bold:true,charSpacing:1,align:"center"});
-  s.addText(c.top.summary,{x:0.22,y:2.45,w:7.83,h:0.42,fontSize:8.2,color:GR,fontFace:"Arial",wrap:true,lineSpacingMultiple:1.3});
+  s.addText(c.top_summary||"",{x:0.22,y:2.45,w:7.83,h:0.42,fontSize:8.2,color:GR,fontFace:"Arial",wrap:true,lineSpacingMultiple:1.3});
 
   var mc=mData.length, mw=mc===1?3:7.83/mc, mx=mc===1?(8.27-3)/2:0.22;
   mData.forEach(function(m,i){
@@ -329,7 +324,8 @@ async function buildPptx(name, arr, mData, c) {
     s.addText(m.label,{x:x+0.06,y:3.43,w:mw-0.13,h:0.28,fontSize:6.8,color:MU,fontFace:"Arial",align:"center",wrap:true});
   });
 
-  c.top.highlights.forEach(function(h,i){
+  var highlights = c.top_highlights || [];
+  highlights.forEach(function(h,i){
     s.addShape(pptx.ShapeType.ellipse,{x:0.22,y:3.87+i*0.3,w:0.06,h:0.06,fill:{color:OR}});
     s.addText(h,{x:0.34,y:3.83+i*0.3,w:7.71,h:0.26,fontSize:7.8,color:TX,fontFace:"Arial",wrap:true});
   });
@@ -337,7 +333,8 @@ async function buildPptx(name, arr, mData, c) {
 
   s.addShape(pptx.ShapeType.rect,{x:0.22,y:4.86,w:1.9,h:0.2,fill:{color:PD},line:{color:PB,width:0.4},rectRadius:0.04});
   s.addText("PERFORMANCE BREAKDOWN",{x:0.23,y:4.87,w:1.88,h:0.18,fontSize:5.6,color:PT,fontFace:"Arial",bold:true,charSpacing:0.8,align:"center"});
-  c.middle.breakdown.forEach(function(b,i){
+  var breakdown = c.middle_breakdown || [];
+  breakdown.forEach(function(b,i){
     s.addShape(pptx.ShapeType.rect,{x:0.22,y:5.12+i*0.3,w:0.06,h:0.06,fill:{color:PU},rectRadius:0.01});
     s.addText(b,{x:0.34,y:5.08+i*0.3,w:7.71,h:0.26,fontSize:7.8,color:TX,fontFace:"Arial",wrap:true});
   });
@@ -345,14 +342,15 @@ async function buildPptx(name, arr, mData, c) {
 
   s.addShape(pptx.ShapeType.rect,{x:0.22,y:6.41,w:1.75,h:0.2,fill:{color:SD},line:{color:SB,width:0.4},rectRadius:0.04});
   s.addText("RECOMMENDATIONS",{x:0.23,y:6.42,w:1.73,h:0.18,fontSize:5.8,color:ST,fontFace:"Arial",bold:true,charSpacing:0.9,align:"center"});
-  c.bottom.recommendations.forEach(function(r,i){
+  var recs = c.bottom_recommendations || [];
+  recs.forEach(function(r,i){
     s.addShape(pptx.ShapeType.ellipse,{x:0.22,y:6.68+i*0.3,w:0.06,h:0.06,fill:{color:SU}});
     s.addText(r,{x:0.34,y:6.64+i*0.3,w:7.71,h:0.26,fontSize:7.8,color:TX,fontFace:"Arial",wrap:true});
   });
   div(7.58);
 
   s.addShape(pptx.ShapeType.rect,{x:0.22,y:7.65,w:7.83,h:0.5,fill:{color:BD},line:{color:BM,width:0.5},rectRadius:0.07});
-  s.addText('"'+c.quote+'"',{x:0.36,y:7.68,w:6.2,h:0.44,fontSize:7.8,color:BT,fontFace:"Arial",italic:true,wrap:true,lineSpacingMultiple:1.25});
+  s.addText('"'+(c.quote||"")+'"',{x:0.36,y:7.68,w:6.2,h:0.44,fontSize:7.8,color:BT,fontFace:"Arial",italic:true,wrap:true,lineSpacingMultiple:1.25});
   s.addText("— Head of Marketing, "+name,{x:5.5,y:7.9,w:2.5,h:0.18,fontSize:6.5,color:MU,fontFace:"Arial",align:"right"});
   s.addText("Confidential · Prepared for "+name,{x:0.22,y:8.24,w:7.83,h:0.16,fontSize:6,color:"c9cde0",fontFace:"Arial"});
 
