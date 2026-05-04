@@ -4,295 +4,104 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Deliverable Builder</title>
-<script>
-  window.pptxgenReady = new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = 'https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundled.js';
-    s.crossOrigin = 'anonymous';
-    s.onload = resolve;
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
-</script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #ffffff;
-    --bg-card: #ffffff;
-    --bg-subtle: #f8f9fc;
-    --bg-input: #f8f9fc;
-    --border: #e8eaf2;
-    --border-hover: #c5c9de;
-    --blue: #4f6ef5;
-    --blue-dim: #eef1fe;
-    --blue-mid: #c7d0fb;
-    --blue-text: #3554d1;
-    --orange: #f97316;
-    --orange-dim: #fff4ed;
-    --orange-text: #c2530a;
-    --text-primary: #111827;
-    --text-secondary: #6b7280;
-    --text-muted: #9ca3af;
+    --bg: #ffffff; --bg-card: #ffffff; --bg-subtle: #f8f9fc; --bg-input: #f8f9fc;
+    --border: #e8eaf2; --border-hover: #c5c9de;
+    --blue: #4f6ef5; --blue-dim: #eef1fe; --blue-mid: #c7d0fb; --blue-text: #3554d1;
+    --orange: #f97316; --orange-dim: #fff4ed; --orange-text: #c2530a;
+    --text-primary: #111827; --text-secondary: #6b7280; --text-muted: #9ca3af;
     --success: #16a34a;
-    --font: 'DM Sans', sans-serif;
-    --mono: 'DM Mono', monospace;
-    --radius: 12px;
-    --radius-sm: 8px;
+    --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+    --radius: 12px; --radius-sm: 8px;
     --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
     --shadow-md: 0 4px 14px rgba(0,0,0,0.08);
   }
-
   html, body { background: #fff; }
-
-  body {
-    font-family: var(--font);
-    color: var(--text-primary);
-    min-height: 100vh;
-    padding-bottom: 80px;
-  }
+  body { font-family: var(--font); color: var(--text-primary); min-height: 100vh; padding-bottom: 80px; }
 
   nav {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(255,255,255,0.94);
-    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.94); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     padding: 0 32px; height: 54px;
     display: flex; align-items: center; justify-content: space-between;
   }
-
   .nav-logo { display: flex; align-items: center; gap: 9px; }
-
-  .nav-logo-mark {
-    width: 26px; height: 26px;
-    background: var(--blue); border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .nav-logo-mark svg {
-    width: 13px; height: 13px; fill: none; stroke: white;
-    stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
-  }
-
+  .nav-logo-mark { width: 26px; height: 26px; background: var(--blue); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .nav-logo-mark svg { width: 13px; height: 13px; fill: none; stroke: white; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .nav-title { font-size: 14.5px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.3px; }
+  .nav-badge { font-size: 11px; color: var(--text-secondary); font-family: var(--mono); background: var(--bg-subtle); border: 1px solid var(--border); padding: 3px 10px; border-radius: 20px; }
 
-  .nav-badge {
-    font-size: 11px; color: var(--text-secondary); font-family: var(--mono);
-    background: var(--bg-subtle); border: 1px solid var(--border);
-    padding: 3px 10px; border-radius: 20px;
-  }
-
-  .hero {
-    max-width: 600px; margin: 52px auto 38px;
-    padding: 0 24px; text-align: center;
-  }
-
-  .hero-tag {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 10.5px; font-family: var(--mono);
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--orange-text); background: var(--orange-dim);
-    border: 1px solid rgba(249,115,22,0.18);
-    padding: 4px 12px; border-radius: 20px; margin-bottom: 16px;
-  }
-
-  .hero-tag::before {
-    content: ''; width: 5px; height: 5px;
-    background: var(--orange); border-radius: 50%; flex-shrink: 0;
-  }
-
-  .hero h1 {
-    font-size: clamp(24px, 4vw, 36px); font-weight: 700;
-    letter-spacing: -1px; line-height: 1.18;
-    color: var(--text-primary); margin-bottom: 13px;
-  }
-
+  .hero { max-width: 600px; margin: 52px auto 38px; padding: 0 24px; text-align: center; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange-text); background: var(--orange-dim); border: 1px solid rgba(249,115,22,0.18); padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; }
+  .hero-tag::before { content: ''; width: 5px; height: 5px; background: var(--orange); border-radius: 50%; flex-shrink: 0; }
+  .hero h1 { font-size: clamp(24px, 4vw, 36px); font-weight: 700; letter-spacing: -1px; line-height: 1.18; color: var(--text-primary); margin-bottom: 13px; }
   .hero h1 em { font-style: normal; color: var(--blue); }
+  .hero p { font-size: 15px; color: var(--text-secondary); line-height: 1.65; max-width: 420px; margin: 0 auto; }
 
-  .hero p {
-    font-size: 15px; color: var(--text-secondary);
-    line-height: 1.65; max-width: 420px; margin: 0 auto;
-  }
-
-  .cards {
-    max-width: 600px; margin: 0 auto;
-    padding: 0 24px; display: flex; flex-direction: column; gap: 12px;
-  }
-
-  .card {
-    background: #fff; border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 24px 24px 28px;
-    box-shadow: var(--shadow);
-    transition: border-color 0.18s, box-shadow 0.18s;
-  }
-
+  .cards { max-width: 600px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 12px; }
+  .card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 24px 28px; box-shadow: var(--shadow); transition: border-color 0.18s, box-shadow 0.18s; }
   .card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-md); }
-
   .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
-
-  .step-pill {
-    font-size: 9.5px; font-family: var(--mono);
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--orange-text); background: var(--orange-dim);
-    border: 1px solid rgba(249,115,22,0.16);
-    padding: 3px 8px; border-radius: 20px; flex-shrink: 0;
-  }
-
+  .step-pill { font-size: 9.5px; font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange-text); background: var(--orange-dim); border: 1px solid rgba(249,115,22,0.16); padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
   .card-title { font-size: 15.5px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.3px; }
   .card-sub { font-size: 12.5px; color: var(--text-muted); margin-top: -10px; margin-bottom: 18px; line-height: 1.5; }
 
   .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
   .input-group { display: flex; flex-direction: column; gap: 6px; }
-
   .input-group label { font-size: 11.5px; font-weight: 500; color: var(--text-secondary); }
-
-  .input-group input {
-    background: var(--bg-input); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 9px 12px;
-    color: var(--text-primary); font-family: var(--font); font-size: 13.5px;
-    outline: none; transition: border-color 0.14s, box-shadow 0.14s, background 0.14s; width: 100%;
-  }
-
+  .input-group input { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; color: var(--text-primary); font-family: var(--font); font-size: 13.5px; outline: none; transition: border-color 0.14s, box-shadow 0.14s; width: 100%; }
   .input-group input::placeholder { color: var(--text-muted); }
+  .input-group input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(79,110,245,0.09); }
 
-  .input-group input:focus {
-    border-color: var(--blue); background: #fff;
-    box-shadow: 0 0 0 3px rgba(79,110,245,0.09);
-  }
-
-  .metric-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 8px; margin-bottom: 6px;
-  }
-
-  .metric-tile {
-    background: var(--bg-input); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 11px 13px;
-    cursor: pointer; display: flex; align-items: center; gap: 10px;
-    font-size: 13px; color: var(--text-secondary); font-weight: 500;
-    transition: all 0.13s; user-select: none;
-  }
-
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+  .metric-tile { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 13px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-secondary); font-weight: 500; transition: all 0.13s; user-select: none; }
   .metric-tile:hover { border-color: var(--blue-mid); color: var(--text-primary); background: var(--blue-dim); }
   .metric-tile.selected { border-color: var(--blue); background: var(--blue-dim); color: var(--blue-text); }
   .metric-tile.disabled { opacity: 0.38; cursor: not-allowed; }
   .metric-tile.disabled:hover { border-color: var(--border); background: var(--bg-input); color: var(--text-secondary); }
-
-  .m-icon {
-    width: 15px; height: 15px; flex-shrink: 0;
-    stroke: currentColor; fill: none;
-    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7;
-  }
-
+  .m-icon { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7; }
   .metric-tile.selected .m-icon { opacity: 1; }
 
-  .select-limit-note {
-    font-size: 11.5px; color: var(--text-muted);
-    font-family: var(--mono); margin-top: 10px;
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  .limit-count {
-    font-weight: 600; color: var(--blue-text);
-    background: var(--blue-dim); border: 1px solid var(--blue-mid);
-    padding: 1px 7px; border-radius: 10px; font-size: 11px;
-  }
+  .select-limit-note { font-size: 11.5px; color: var(--text-muted); font-family: var(--mono); margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+  .limit-count { font-weight: 600; color: var(--blue-text); background: var(--blue-dim); border: 1px solid var(--blue-mid); padding: 1px 7px; border-radius: 10px; font-size: 11px; }
 
   .values-section { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 14px; }
   .values-heading { font-size: 10.5px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--mono); margin-bottom: 11px; }
   .metric-values { display: flex; flex-direction: column; gap: 8px; }
-
   .metric-value-row { display: flex; align-items: center; gap: 11px; animation: slideIn 0.17s ease; }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .metric-value-label {
-    font-size: 12.5px; color: var(--text-secondary);
-    width: 185px; flex-shrink: 0;
-    display: flex; align-items: center; gap: 7px; font-weight: 500;
-  }
-
-  .metric-value-row input {
-    flex: 1; background: var(--bg-input); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 7px 11px;
-    color: var(--text-primary); font-family: var(--mono); font-size: 12.5px;
-    outline: none; transition: border-color 0.14s, box-shadow 0.14s;
-  }
-
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .metric-value-label { font-size: 12.5px; color: var(--text-secondary); width: 185px; flex-shrink: 0; display: flex; align-items: center; gap: 7px; font-weight: 500; }
+  .metric-value-row input { flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 11px; color: var(--text-primary); font-family: var(--mono); font-size: 12.5px; outline: none; transition: border-color 0.14s, box-shadow 0.14s; }
   .metric-value-row input::placeholder { color: var(--text-muted); }
   .metric-value-row input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(79,110,245,0.09); }
 
   .visual-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  .visual-option {
-    background: var(--bg-input); border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm); padding: 16px 15px;
-    cursor: pointer; transition: all 0.14s; user-select: none;
-  }
-
+  .visual-option { background: var(--bg-input); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 16px 15px; cursor: pointer; transition: all 0.14s; user-select: none; }
   .visual-option:hover { border-color: var(--blue-mid); background: var(--blue-dim); }
   .visual-option.selected { border-color: var(--blue); background: var(--blue-dim); }
-
-  .vo-icon-wrap {
-    width: 30px; height: 30px; border-radius: 7px;
-    background: #fff; border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
-  }
-
+  .vo-icon-wrap { width: 30px; height: 30px; border-radius: 7px; background: #fff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
   .visual-option.selected .vo-icon-wrap { background: var(--blue); border-color: var(--blue); }
-
-  .vo-icon-wrap svg {
-    width: 14px; height: 14px; stroke: var(--text-secondary); fill: none;
-    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
-  }
-
+  .vo-icon-wrap svg { width: 14px; height: 14px; stroke: var(--text-secondary); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .visual-option.selected .vo-icon-wrap svg { stroke: white; }
   .vo-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
   .vo-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
 
   .cta-section { max-width: 600px; margin: 26px auto 0; padding: 0 24px; text-align: center; }
-
-  .generate-btn {
-    background: var(--blue); color: #fff; border: none;
-    border-radius: 50px; padding: 13px 44px;
-    font-family: var(--font); font-size: 14.5px; font-weight: 600;
-    cursor: pointer; letter-spacing: -0.2px; transition: all 0.14s;
-    display: inline-flex; align-items: center; gap: 8px;
-    min-width: 200px; justify-content: center;
-    box-shadow: 0 2px 8px rgba(79,110,245,0.28);
-  }
-
+  .generate-btn { background: var(--blue); color: #fff; border: none; border-radius: 50px; padding: 13px 44px; font-family: var(--font); font-size: 14.5px; font-weight: 600; cursor: pointer; letter-spacing: -0.2px; transition: all 0.14s; display: inline-flex; align-items: center; gap: 8px; min-width: 200px; justify-content: center; box-shadow: 0 2px 8px rgba(79,110,245,0.28); }
   .generate-btn:hover { background: #3d5ce0; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,110,245,0.32); }
   .generate-btn:active { transform: translateY(0); }
   .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
   .cta-note { font-size: 11.5px; color: var(--text-muted); margin-top: 10px; font-family: var(--mono); }
 
-  .spinner {
-    width: 13px; height: 13px;
-    border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
-    border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
-  }
+  .spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
   .loading .spinner { display: block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    background: #fff; border: 1px solid #bbf7d0;
-    color: var(--text-primary); padding: 11px 16px;
-    border-radius: var(--radius-sm); font-size: 13px; font-weight: 500;
-    display: flex; align-items: center; gap: 8px;
-    opacity: 0; transform: translateY(8px); transition: all 0.2s;
-    pointer-events: none; z-index: 999; max-width: 290px;
-    box-shadow: var(--shadow-md);
-  }
-
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #fff; border: 1px solid #bbf7d0; color: var(--text-primary); padding: 11px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; z-index: 999; max-width: 290px; box-shadow: var(--shadow-md); }
   .toast.show { opacity: 1; transform: translateY(0); }
   .toast-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; flex-shrink: 0; }
   .toast.error { border-color: #fecaca; }
@@ -326,30 +135,17 @@
 </div>
 
 <div class="cards">
-
   <div class="card">
-    <div class="card-header">
-      <span class="step-pill">Step 01</span>
-      <span class="card-title">Account Details</span>
-    </div>
+    <div class="card-header"><span class="step-pill">Step 01</span><span class="card-title">Account Details</span></div>
     <div class="card-sub">Who is this one-pager for?</div>
     <div class="input-row">
-      <div class="input-group">
-        <label>Account Name</label>
-        <input type="text" id="accountName" placeholder="e.g. Pigment" />
-      </div>
-      <div class="input-group">
-        <label>ARR</label>
-        <input type="text" id="arr" placeholder="e.g. £120,000" />
-      </div>
+      <div class="input-group"><label>Account Name</label><input type="text" id="accountName" placeholder="e.g. Pigment" /></div>
+      <div class="input-group"><label>ARR</label><input type="text" id="arr" placeholder="e.g. £120,000" /></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-header">
-      <span class="step-pill">Step 02</span>
-      <span class="card-title">Select Key Metrics</span>
-    </div>
+    <div class="card-header"><span class="step-pill">Step 02</span><span class="card-title">Select Key Metrics</span></div>
     <div class="card-sub">Choose exactly 2 metrics to focus on. Enter their values below.</div>
     <div class="metric-grid" id="metricGrid"></div>
     <div class="select-limit-note">
@@ -363,29 +159,21 @@
   </div>
 
   <div class="card">
-    <div class="card-header">
-      <span class="step-pill">Step 03</span>
-      <span class="card-title">Visual Style</span>
-    </div>
+    <div class="card-header"><span class="step-pill">Step 03</span><span class="card-title">Visual Style</span></div>
     <div class="card-sub">Choose the layout for the generated one-pager.</div>
     <div class="visual-options">
       <div class="visual-option selected" id="opt-visual" onclick="selectVisual('visual')">
-        <div class="vo-icon-wrap">
-          <svg viewBox="0 0 14 14"><rect x="1" y="7" width="2.5" height="6"/><rect x="5.5" y="4" width="2.5" height="9"/><rect x="10" y="1" width="2.5" height="12"/></svg>
-        </div>
+        <div class="vo-icon-wrap"><svg viewBox="0 0 14 14"><rect x="1" y="7" width="2.5" height="6"/><rect x="5.5" y="4" width="2.5" height="9"/><rect x="10" y="1" width="2.5" height="12"/></svg></div>
         <div class="vo-title">Include Visuals</div>
         <div class="vo-desc">Bold stat callout blocks to illustrate performance at a glance</div>
       </div>
       <div class="visual-option" id="opt-text" onclick="selectVisual('text')">
-        <div class="vo-icon-wrap">
-          <svg viewBox="0 0 14 14"><line x1="1" y1="3" x2="13" y2="3"/><line x1="1" y1="6" x2="13" y2="6"/><line x1="1" y1="9" x2="10" y2="9"/><line x1="1" y1="12" x2="8" y2="12"/></svg>
-        </div>
+        <div class="vo-icon-wrap"><svg viewBox="0 0 14 14"><line x1="1" y1="3" x2="13" y2="3"/><line x1="1" y1="6" x2="13" y2="6"/><line x1="1" y1="9" x2="10" y2="9"/><line x1="1" y1="12" x2="8" y2="12"/></svg></div>
         <div class="vo-title">Text Only</div>
         <div class="vo-desc">Clean, minimal layout with metrics as concise bullet points</div>
       </div>
     </div>
   </div>
-
 </div>
 
 <div class="cta-section">
@@ -489,7 +277,7 @@ async function generate() {
   if (selectedMetrics.size === 0) { showToast("Please select at least 1 metric.", true); return; }
 
   const metricsData = METRICS.filter(m => selectedMetrics.has(m.id)).map(m => ({
-    ...m, value: document.getElementById("val-" + m.id)?.value.trim() || "N/A"
+    id: m.id, label: m.label, value: document.getElementById("val-" + m.id)?.value.trim() || "N/A"
   }));
 
   const btn = document.getElementById("generateBtn");
@@ -499,7 +287,6 @@ async function generate() {
 
   try {
     const metricsText = metricsData.map(m => `- ${m.label}: ${m.value}`).join("\n");
-
     const prompt = `You are a senior B2B SaaS Customer Success Manager writing a structured client one-pager for ${accountName}.
 
 Account: ${accountName}
@@ -517,27 +304,18 @@ Return ONLY valid JSON, no markdown, no extra text:
     "highlights": ["highlight 1 referencing a metric value", "highlight 2 referencing a metric value", "highlight 3 — a positive observation about the data"]
   },
   "middle": {
-    "breakdown": [
-      "Specific reason or driver behind metric 1 result (what caused it)",
-      "Specific reason or driver behind metric 2 result (what caused it)",
-      "Broader context — what this pattern suggests about the account maturity",
-      "One honest observation — what could be limiting further performance"
-    ]
+    "breakdown": ["Specific reason or driver behind metric 1 result","Specific reason or driver behind metric 2 result","Broader context about account maturity","One honest observation about what could be limiting further performance"]
   },
   "bottom": {
-    "recommendations": [
-      "Specific tactical recommendation tied to metric 1",
-      "Specific tactical recommendation tied to metric 2",
-      "Strategic suggestion for next quarter"
-    ]
+    "recommendations": ["Specific tactical recommendation tied to metric 1","Specific tactical recommendation tied to metric 2","Strategic suggestion for next quarter"]
   },
-  "quote": "A realistic enthusiastic client quote about working with the platform (1-2 sentences)"
+  "quote": "A realistic enthusiastic client quote (1-2 sentences)"
 }`;
 
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt, accountName, arr, metricsData, visualStyle })
     });
 
     if (!response.ok) {
@@ -545,18 +323,21 @@ Return ONLY valid JSON, no markdown, no extra text:
       throw new Error(err.error || "Server error. Please try again.");
     }
 
-    const { result } = await response.json();
+    const { base64, filename } = await response.json();
 
-    let content;
-    try {
-      const jsonMatch = result.match(/\{[\s\S]*\}/);
-      content = JSON.parse(jsonMatch ? jsonMatch[0] : result);
-    } catch(e) { throw new Error("Could not parse AI response. Please try again."); }
+    // Trigger download from base64
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.presentationml.presentation" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 
-    await window.pptxgenReady;
-    await buildPptx(accountName, arr, metricsData, content);
     showToast("One-pager ready — check your downloads.");
-
   } catch (err) {
     showToast(err.message || "Something went wrong. Please try again.", true);
   } finally {
@@ -564,86 +345,6 @@ Return ONLY valid JSON, no markdown, no extra text:
     document.getElementById("spinner").style.display = "none";
     document.getElementById("btnText").textContent = "Generate One-Pager";
   }
-}
-
-async function buildPptx(accountName, arr, metricsData, content) {
-  const pptx = new PptxGenJS();
-  pptx.layout = "A4";
-
-  const W="ffffff", BLUE="4f6ef5", BLUEDIM="eef1fe", BLUETXT="3554d1", BLUEMID="c7d0fb",
-        ORANGE="f97316", ORANGEDIM="fff4ed", ORANGETXT="c2530a",
-        TEXT="111827", GRAY="6b7280", MUTED="9ca3af", BORDER="e8eaf2",
-        SUCCESS="16a34a", SUCCDIM="f0fdf4", SUCCBDR="bbf7d0", SUCCTXT="15803d",
-        PURPLE="7c3aed", PURPDIM="f5f3ff", PURPBDR="ddd6fe", PURPTXT="5b21b6";
-
-  const slide = pptx.addSlide();
-  slide.background = { color: W };
-
-  slide.addShape(pptx.ShapeType.rect, { x:0, y:0, w:14.8, h:1.42, fill:{color:W}, line:{color:BORDER,width:0.6} });
-  slide.addShape(pptx.ShapeType.rect, { x:0, y:0, w:0.07, h:1.42, fill:{color:BLUE} });
-  slide.addShape(pptx.ShapeType.rect, { x:0.22, y:0.15, w:1.55, h:0.21, fill:{color:ORANGEDIM}, line:{color:"fbd5b5",width:0.4}, rectRadius:0.04 });
-  slide.addText("CLIENT ONE-PAGER", { x:0.23, y:0.16, w:1.53, h:0.19, fontSize:5.8, color:ORANGETXT, fontFace:"Arial", bold:true, charSpacing:1.1, align:"center" });
-  slide.addText(accountName, { x:0.22, y:0.4, w:10.5, h:0.56, fontSize:22, bold:true, color:TEXT, fontFace:"Arial" });
-  if (arr) {
-    slide.addShape(pptx.ShapeType.rect, { x:0.22, y:1.02, w:1.6, h:0.22, fill:{color:BLUEDIM}, line:{color:BLUEMID,width:0.4}, rectRadius:0.04 });
-    slide.addText(`ARR: ${arr}`, { x:0.24, y:1.04, w:1.56, h:0.18, fontSize:7, color:BLUETXT, fontFace:"Arial", bold:true, align:"center" });
-  }
-  slide.addText(new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'}), { x:11.3, y:0.18, w:3.3, h:0.2, fontSize:7.2, color:MUTED, fontFace:"Arial", align:"right" });
-  slide.addShape(pptx.ShapeType.rect, { x:0.22, y:1.55, w:14.36, h:0.48, fill:{color:BLUEDIM}, line:{color:BLUEMID,width:0.5}, rectRadius:0.06 });
-  slide.addText(content.headline, { x:0.34, y:1.58, w:14.12, h:0.42, fontSize:11.5, bold:true, color:BLUETXT, fontFace:"Arial", wrap:true, align:"center" });
-
-  const divider = (y) => slide.addShape(pptx.ShapeType.line, { x:0.22, y, w:14.36, h:0, line:{color:BORDER,width:0.55} });
-  divider(2.13);
-
-  slide.addShape(pptx.ShapeType.rect, { x:0.22, y:2.2, w:1.5, h:0.2, fill:{color:ORANGEDIM}, line:{color:"fbd5b5",width:0.4}, rectRadius:0.04 });
-  slide.addText("OVERVIEW", { x:0.23, y:2.21, w:1.48, h:0.18, fontSize:6, color:ORANGETXT, fontFace:"Arial", bold:true, charSpacing:1, align:"center" });
-  slide.addText(content.top.summary, { x:0.22, y:2.45, w:14.36, h:0.42, fontSize:8.2, color:GRAY, fontFace:"Arial", wrap:true, lineSpacingMultiple:1.3 });
-
-  const mCount = metricsData.length;
-  const mColW = mCount === 1 ? 4 : 14.36 / mCount;
-  const mStartX = mCount === 1 ? (14.8 - 4) / 2 : 0.22;
-
-  metricsData.forEach((m, i) => {
-    const x = mStartX + i * mColW;
-    slide.addShape(pptx.ShapeType.rect, { x:x+0.06, y:2.93, w:mColW-0.13, h:0.85, fill:{color:W}, line:{color:BORDER,width:0.5}, rectRadius:0.07 });
-    slide.addText(m.value, { x:x+0.06, y:2.98, w:mColW-0.13, h:0.42, fontSize:20, bold:true, color:BLUE, fontFace:"Arial", align:"center" });
-    slide.addShape(pptx.ShapeType.line, { x:x+0.26, y:3.4, w:mColW-0.52, h:0, line:{color:BORDER,width:0.35} });
-    slide.addText(m.label, { x:x+0.06, y:3.43, w:mColW-0.13, h:0.28, fontSize:6.8, color:MUTED, fontFace:"Arial", align:"center", wrap:true });
-  });
-
-  content.top.highlights.forEach((h, i) => {
-    slide.addShape(pptx.ShapeType.ellipse, { x:0.22, y:3.87+i*0.3, w:0.06, h:0.06, fill:{color:ORANGE} });
-    slide.addText(h, { x:0.34, y:3.83+i*0.3, w:14.24, h:0.26, fontSize:7.8, color:TEXT, fontFace:"Arial", wrap:true });
-  });
-
-  divider(4.79);
-
-  slide.addShape(pptx.ShapeType.rect, { x:0.22, y:4.86, w:1.9, h:0.2, fill:{color:PURPDIM}, line:{color:PURPBDR,width:0.4}, rectRadius:0.04 });
-  slide.addText("PERFORMANCE BREAKDOWN", { x:0.23, y:4.87, w:1.88, h:0.18, fontSize:5.6, color:PURPTXT, fontFace:"Arial", bold:true, charSpacing:0.8, align:"center" });
-
-  content.middle.breakdown.forEach((b, i) => {
-    slide.addShape(pptx.ShapeType.rect, { x:0.22, y:5.12+i*0.3, w:0.06, h:0.06, fill:{color:PURPLE}, rectRadius:0.01 });
-    slide.addText(b, { x:0.34, y:5.08+i*0.3, w:14.24, h:0.26, fontSize:7.8, color:TEXT, fontFace:"Arial", wrap:true });
-  });
-
-  divider(6.34);
-
-  slide.addShape(pptx.ShapeType.rect, { x:0.22, y:6.41, w:1.75, h:0.2, fill:{color:SUCCDIM}, line:{color:SUCCBDR,width:0.4}, rectRadius:0.04 });
-  slide.addText("RECOMMENDATIONS", { x:0.23, y:6.42, w:1.73, h:0.18, fontSize:5.8, color:SUCCTXT, fontFace:"Arial", bold:true, charSpacing:0.9, align:"center" });
-
-  content.bottom.recommendations.forEach((r, i) => {
-    slide.addShape(pptx.ShapeType.ellipse, { x:0.22, y:6.68+i*0.3, w:0.06, h:0.06, fill:{color:SUCCESS} });
-    slide.addText(r, { x:0.34, y:6.64+i*0.3, w:14.24, h:0.26, fontSize:7.8, color:TEXT, fontFace:"Arial", wrap:true });
-  });
-
-  divider(7.58);
-  slide.addShape(pptx.ShapeType.rect, { x:0.22, y:7.65, w:14.36, h:0.5, fill:{color:BLUEDIM}, line:{color:BLUEMID,width:0.5}, rectRadius:0.07 });
-  slide.addText(`"${content.quote}"`, { x:0.36, y:7.68, w:11.5, h:0.44, fontSize:7.8, color:BLUETXT, fontFace:"Arial", italic:true, wrap:true, lineSpacingMultiple:1.25 });
-  slide.addText(`— Head of Marketing, ${accountName}`, { x:11.9, y:7.9, w:2.5, h:0.18, fontSize:6.5, color:MUTED, fontFace:"Arial", align:"right" });
-  slide.addText(`Confidential · Prepared for ${accountName}`, { x:0.22, y:8.24, w:14.36, h:0.16, fontSize:6, color:"c9cde0", fontFace:"Arial" });
-
-  const filename = `deliverable-${accountName.toLowerCase().replace(/\s+/g,'-')}.pptx`;
-  await pptx.writeFile({ fileName: filename });
 }
 
 buildMetricGrid();
