@@ -286,22 +286,19 @@ async function buildPptx(name, mData, c) {
   pptx.defineLayout({ name:"A4", width:8.27, height:11.69 });
   pptx.layout = "A4";
 
-  // Brand colours
   var W   = "ffffff";
   var BL  = "1B6EF3";
   var BLD = "E8F0FE";
-  var BLT = "1251B5";
   var BLM = "A8C4FA";
+  var BLT = "1251B5";
   var OR  = "FA6902";
-  var ORD = "FFF4E8";
   var TX  = "111827";
   var GR  = "6B7280";
   var MU  = "9CA3AF";
   var BO  = "E5E7EB";
-  var SU  = "16A34A";
+  var ST  = "15803D";
   var SD  = "F0FDF5";
   var SB  = "1C8242";
-  var ST  = "15803D";
   var PU  = "7C3AED";
   var PD  = "F5F3FF";
   var PB  = "DDD6FE";
@@ -312,112 +309,66 @@ async function buildPptx(name, mData, c) {
   s.background = { color: W };
 
   // ── HEADER ──────────────────────────────────────────────
-  // Blue left accent bar
   s.addShape(pptx.ShapeType.rect, { x:0, y:0, w:0.06, h:1.305, fill:{color:BL}, line:{type:"none"} });
-
-  // Light blue header background
   s.addShape(pptx.ShapeType.rect, { x:0.06, y:0.012, w:6.253, h:1.293, fill:{color:BLD}, line:{type:"none"} });
-
-  // Editable title placeholder
   s.addText("[ Add your title here ]", {
-    x:0.06, y:0.367, w:6.253, h:0.4,
-    fontSize:10.5, color:BLM, fontFace:"Arial", italic:true,
-    align:"left", valign:"middle",
-    insFontClr:"none"
+    x:0.16, y:0.367, w:6.0, h:0.4,
+    fontSize:10.5, color:BLM, fontFace:"Arial", italic:true, valign:"middle"
   });
-
-  // Account name (top right)
   s.addText(name, {
     x:6.313, y:0.13, w:1.877, h:0.52,
     fontSize:20, bold:true, color:TX, fontFace:"Arial", align:"right"
   });
-
-  // Date (top right below name)
   var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   var now = new Date();
-  var dateStr = "Date: " + months[now.getMonth()] + " " + now.getFullYear();
-  s.addText(dateStr, {
+  s.addText("Date: "+months[now.getMonth()]+" "+now.getFullYear(), {
     x:6.373, y:0.767, w:1.617, h:0.303,
     fontSize:10, color:MU, fontFace:"Arial", align:"right"
   });
 
   // ── METRIC CARDS + INSIGHT ───────────────────────────────
-  // For each selected metric (up to 2), render side by side
-  var CARD_Y = 1.81;
-  var CARD_H = 1.575;
-  var CARD_W = 1.575;
-  var INSIGHT_X = 1.96;
-  var INSIGHT_W = 6.02;
+  var CARD_Y  = 1.81;
+  var CARD_H  = 1.575;
+  var CARD_W  = 1.575;
+  var GAP     = 0.12;
 
-  // If 2 metrics, stack them; if 1 metric use template layout
-  if (mData.length === 1) {
-    // Single metric card (orange border)
+  // Draw cards — no fill background, just orange border
+  var numCards = mData.length;
+  var cardsEndX = 0.29 + numCards * CARD_W + (numCards - 1) * GAP;
+  var insX = cardsEndX + 0.2;
+  var insW = 8.27 - insX - 0.28;
+
+  mData.forEach(function(m, i) {
+    var cx = 0.29 + i * (CARD_W + GAP);
+    // Orange border, no fill
     s.addShape(pptx.ShapeType.rect, {
-      x:0.29, y:CARD_Y, w:CARD_W, h:CARD_H,
-      fill:{color:W}, line:{color:OR, width:1.5}, rectRadius:0.08
+      x:cx, y:CARD_Y, w:CARD_W, h:CARD_H,
+      fill:{type:"none"}, line:{color:OR, width:1.5}, rectRadius:0.08
     });
-    s.addText(mData[0].value, {
-      x:0.29, y:CARD_Y+0.375, w:CARD_W, h:0.4,
-      fontSize:36, bold:true, color:OR, fontFace:"Arial", align:"center"
+    // Large value
+    s.addText(m.value, {
+      x:cx, y:CARD_Y + 0.38, w:CARD_W, h:0.5,
+      fontSize:34, bold:true, color:OR, fontFace:"Arial", align:"center"
     });
-    s.addText(mData[0].label, {
-      x:0.29, y:CARD_Y+CARD_H-0.22, w:CARD_W, h:0.18,
-      fontSize:10, color:MU, fontFace:"Arial", align:"center"
+    // Label at bottom of card
+    s.addText(m.label, {
+      x:cx, y:CARD_Y + CARD_H - 0.25, w:CARD_W, h:0.22,
+      fontSize:9.5, color:MU, fontFace:"Arial", align:"center", wrap:true
     });
+  });
 
-    // Insight text to the right
-    s.addText("INSIGHT", {
-      x:INSIGHT_X, y:CARD_Y, w:INSIGHT_W, h:0.22,
-      fontSize:12, bold:true, color:OR, fontFace:"Arial"
-    });
-    s.addText(c.top_summary||"", {
-      x:INSIGHT_X, y:CARD_Y+0.25, w:INSIGHT_W, h:1.2,
-      fontSize:12, color:TX, fontFace:"Arial", wrap:true, lineSpacingMultiple:1.4
-    });
-
-  } else {
-    // Two metric cards side by side
-    var card2X = 0.29 + CARD_W + 0.15;
-    [0,1].forEach(function(i) {
-      var cx = i === 0 ? 0.29 : card2X;
-      s.addShape(pptx.ShapeType.rect, {
-        x:cx, y:CARD_Y, w:CARD_W, h:CARD_H,
-        fill:{color:W}, line:{color:OR, width:1.5}, rectRadius:0.08
-      });
-      s.addText(mData[i].value, {
-        x:cx, y:CARD_Y+0.35, w:CARD_W, h:0.42,
-        fontSize:34, bold:true, color:OR, fontFace:"Arial", align:"center"
-      });
-      s.addText(mData[i].label, {
-        x:cx, y:CARD_Y+CARD_H-0.22, w:CARD_W, h:0.18,
-        fontSize:9.5, color:MU, fontFace:"Arial", align:"center", wrap:true
-      });
-    });
-
-    // Insight to the right of both cards
-    var insX = card2X + CARD_W + 0.15;
-    var insW = 8.27 - insX - 0.28;
-    s.addText("INSIGHT", {
-      x:insX, y:CARD_Y, w:insW, h:0.22,
-      fontSize:12, bold:true, color:OR, fontFace:"Arial"
-    });
-    s.addText(c.top_summary||"", {
-      x:insX, y:CARD_Y+0.25, w:insW, h:1.25,
-      fontSize:11, color:TX, fontFace:"Arial", wrap:true, lineSpacingMultiple:1.4
-    });
-  }
-
-  // Highlights bullets under insight
-  var hlY = CARD_Y + CARD_H + 0.1;
-  var highlights = c.top_highlights || [];
-  highlights.slice(0,2).forEach(function(h, i) {
-    s.addShape(pptx.ShapeType.ellipse, { x:0.29, y:hlY+0.05, w:0.07, h:0.07, fill:{color:OR} });
-    s.addText(h, { x:0.42, y:hlY, w:7.56, h:0.26, fontSize:10, color:TX, fontFace:"Arial", wrap:true });
-    hlY += 0.3;
+  // Insight block
+  s.addText("INSIGHT", {
+    x:insX, y:CARD_Y, w:insW, h:0.25,
+    fontSize:12, bold:true, color:OR, fontFace:"Arial"
+  });
+  s.addText(c.top_summary||"", {
+    x:insX, y:CARD_Y + 0.28, w:insW, h:CARD_H - 0.28,
+    fontSize:11, color:TX, fontFace:"Arial", wrap:true, lineSpacingMultiple:1.45
   });
 
   // ── PERFORMANCE BREAKDOWN ────────────────────────────────
-  var BRK_Y = hlY + 0.12;
+  var BRK_Y = CARD_Y + CARD_H + 0.25;
 
   // Purple header pill
   s.addShape(pptx.ShapeType.rect, {
@@ -425,46 +376,49 @@ async function buildPptx(name, mData, c) {
     fill:{color:PD}, line:{color:PB, width:0.7}, rectRadius:0.06
   });
   s.addText("PERFORMANCE BREAKDOWN", {
-    x:0.3, y:BRK_Y+0.17, w:2.938, h:0.2,
+    x:0.3, y:BRK_Y + 0.16, w:2.938, h:0.22,
     fontSize:12, bold:true, color:PT, fontFace:"Arial", align:"center"
   });
 
-  var BRK_CONTENT_Y = BRK_Y + 0.56;
+  var BRK_TEXT_Y = BRK_Y + 0.56;
   var breakdown = c.middle_breakdown || ["","","",""];
   while (breakdown.length < 4) breakdown.push("");
+  var LEFT_W = 3.85;
+  var ROW_H  = 0.52;
 
-  // Left text column (4 bullet points)
-  var LEFT_W = 3.97;
+  // Each breakdown point as its own paragraph with proper spacing
   breakdown.forEach(function(b, i) {
-    s.addShape(pptx.ShapeType.rect, { x:0.28, y:BRK_CONTENT_Y+0.06+i*0.52, w:0.06, h:0.06, fill:{color:PU}, rectRadius:0.01 });
+    var ry = BRK_TEXT_Y + i * ROW_H;
+    s.addShape(pptx.ShapeType.rect, {
+      x:0.28, y:ry + 0.07, w:0.058, h:0.058,
+      fill:{color:PU}, line:{type:"none"}, rectRadius:0.01
+    });
     s.addText(b, {
-      x:0.42, y:BRK_CONTENT_Y+i*0.52, w:LEFT_W-0.16, h:0.48,
-      fontSize:11, color:TX, fontFace:"Arial", wrap:true, lineSpacingMultiple:1.25
+      x:0.42, y:ry, w:LEFT_W - 0.16, h:ROW_H - 0.04,
+      fontSize:11, color:TX, fontFace:"Arial", wrap:true, valign:"top"
     });
   });
 
-  // Right purple visual placeholder box
+  // Right purple visual placeholder
   var RBX = 4.381;
   var RBW = 3.599;
-  var RBH = 2.75;
+  var RBH = breakdown.length * ROW_H + 0.2;
   s.addShape(pptx.ShapeType.rect, {
-    x:RBX, y:BRK_CONTENT_Y-0.25, w:RBW, h:RBH,
+    x:RBX, y:BRK_Y + 0.56, w:RBW, h:RBH,
     fill:{color:PR}, line:{type:"none"}, rectRadius:0.08
   });
-  // Label inside the box
-  var m1label = mData.length > 0 ? mData[0].label+" Metric Overview" : "Metric Overview";
-  s.addText(m1label, {
-    x:RBX+0.15, y:BRK_CONTENT_Y+RBH-0.5, w:RBW-0.3, h:0.3,
-    fontSize:11, color:PT, fontFace:"Arial", italic:true, align:"center"
-  });
-  // Placeholder note
   s.addText("[ Visual / chart placeholder ]", {
-    x:RBX+0.15, y:BRK_CONTENT_Y+0.8, w:RBW-0.3, h:0.4,
+    x:RBX + 0.15, y:BRK_Y + 0.56 + RBH/2 - 0.2, w:RBW - 0.3, h:0.4,
     fontSize:10, color:PB, fontFace:"Arial", align:"center", italic:true
+  });
+  var m1label = mData.length > 0 ? mData[0].label + " Metric Overview" : "Metric Overview";
+  s.addText(m1label, {
+    x:RBX + 0.15, y:BRK_Y + 0.56 + RBH - 0.3, w:RBW - 0.3, h:0.25,
+    fontSize:10, color:PT, fontFace:"Arial", align:"center", italic:true
   });
 
   // ── RECOMMENDATIONS ──────────────────────────────────────
-  var REC_Y = BRK_CONTENT_Y + Math.max(breakdown.length * 0.52, RBH - 0.25) + 0.22;
+  var REC_Y = BRK_TEXT_Y + breakdown.length * ROW_H + 0.28;
 
   // Green header pill
   s.addShape(pptx.ShapeType.rect, {
@@ -472,7 +426,7 @@ async function buildPptx(name, mData, c) {
     fill:{color:SD}, line:{color:SB, width:0.7}, rectRadius:0.06
   });
   s.addText("RECOMMENDATIONS", {
-    x:0.395, y:REC_Y+0.17, w:2.938, h:0.2,
+    x:0.395, y:REC_Y + 0.16, w:2.938, h:0.22,
     fontSize:12, bold:true, color:ST, fontFace:"Arial", align:"center"
   });
 
@@ -480,39 +434,59 @@ async function buildPptx(name, mData, c) {
   var recs = c.bottom_recommendations || [];
   while (recs.length < 3) recs.push("");
 
-  // 3 equal columns
-  var COL_W = 2.389;
+  var COL_W   = 2.389;
   var COL_GAP = 0.158;
-  var COL_STARTS = [0.395, 0.395+COL_W+COL_GAP, 0.395+(COL_W+COL_GAP)*2];
-  var REC_BOX_H = 11.31 - REC_CONTENT_Y - 0.15;
+  var REC_BOX_H = 11.31 - REC_CONTENT_Y - 0.12;
+  var COL_STARTS = [
+    0.395,
+    0.395 + COL_W + COL_GAP,
+    0.395 + (COL_W + COL_GAP) * 2
+  ];
 
   COL_STARTS.forEach(function(cx, i) {
+    var rec = recs[i] || "";
+
+    // Split into title sentence and rest
+    var dotIdx = rec.indexOf(".");
+    var title, detail;
+    if (dotIdx > 0 && dotIdx < rec.length - 1) {
+      title  = rec.substring(0, dotIdx + 1).trim();
+      detail = rec.substring(dotIdx + 1).trim();
+    } else {
+      title  = rec;
+      detail = "[ How to implement this ]";
+    }
+    if (!detail) detail = "[ How to implement this ]";
+
     // Card border
     s.addShape(pptx.ShapeType.rect, {
       x:cx, y:REC_CONTENT_Y, w:COL_W, h:REC_BOX_H,
       fill:{color:W}, line:{color:BO, width:0.5}, rectRadius:0.07
     });
-    // Bold title
-    var rec = recs[i] || "";
-    var parts = rec.split(".");
-    var title = parts[0] ? parts[0].trim() : rec;
-    var detail = parts.slice(1).join(".").trim() || "[ How to implement this ]";
+
+    // Bold title — its own text box
     s.addText(title, {
-      x:cx+0.12, y:REC_CONTENT_Y+0.15, w:COL_W-0.24, h:0.6,
-      fontSize:10.5, bold:true, color:TX, fontFace:"Arial", wrap:true, lineSpacingMultiple:1.3
+      x:cx + 0.12, y:REC_CONTENT_Y + 0.14,
+      w:COL_W - 0.24, h:0.72,
+      fontSize:10.5, bold:true, color:TX, fontFace:"Arial",
+      wrap:true, valign:"top", lineSpacingMultiple:1.3
     });
+
+    // Detail text — separate text box below title
     s.addText(detail, {
-      x:cx+0.12, y:REC_CONTENT_Y+0.82, w:COL_W-0.24, h:REC_BOX_H-1.0,
-      fontSize:10, color:GR, fontFace:"Arial", wrap:true, lineSpacingMultiple:1.3, italic:true
+      x:cx + 0.12, y:REC_CONTENT_Y + 0.96,
+      w:COL_W - 0.24, h:REC_BOX_H - 1.1,
+      fontSize:10, color:GR, fontFace:"Arial",
+      wrap:true, valign:"top", italic:true, lineSpacingMultiple:1.3
     });
   });
 
   // ── QUOTE + FOOTER ───────────────────────────────────────
-  s.addText("\u201c"+(c.quote||"")+"\u201d", {
+  s.addText("\u201c" + (c.quote||"") + "\u201d", {
     x:0.42, y:11.31, w:7.43, h:0.2,
     fontSize:8, color:MU, fontFace:"Arial", italic:true
   });
-  s.addText("Confidential \u00b7 Prepared for "+name, {
+  s.addText("Confidential \u00b7 Prepared for " + name, {
     x:0.28, y:11.51, w:7.71, h:0.16,
     fontSize:8, color:"D1D5DB", fontFace:"Arial"
   });
